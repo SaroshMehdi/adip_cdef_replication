@@ -1,0 +1,86 @@
+# Table IV ablation, -w/ MEF (in Lab): fusion in Lab.
+# configs/cdef_paper.yaml with only this change. Generated; edit the main config instead.
+
+discrimination:
+  greenish:
+  - 0.5
+  - 0.15
+  bluish:
+  - 1.0
+  - 0.3
+luminance:
+  method: reference
+  mu: 0.5
+  lam: 0.5
+  eps: 0.001
+  window: 5
+  a: -0.3293
+  b: 1.1258
+  threshold: 0.5
+  search_size: 50
+  solve_scale: 0.5
+  k_range:
+  - 1.0
+  - 7.0
+  pcg_tol: 0.1
+  offset: 0.0
+  clip: true
+color_compensation:
+  mask_threshold: 0.85
+  sigma: 1.0
+  sigma_ratio: null
+  smooth_mask: true
+  use_mask: true
+tone_mapping:
+  a: 2.0
+  b: 0.01
+cbm:
+  omega: 0.1
+  b1_size: 15
+  b2_size: 5
+  iterations: 10
+  mode: repeat
+  clip: false
+  acs: false
+  acs_lambda: 0.008
+ide:
+  method: reference
+  p1: -0.397
+  p2: 0.07747
+  epsilon: 0.02
+  delta: 4
+  patch: 75
+  air_window: 10
+  tmin_offset: 0.02
+  smoothing: box
+  smooth_radius: 50
+  tolerance: 0.001
+  clip: false
+  dark_patch: 15
+  top_fraction: 0.001
+  gf_radius: 37
+  gf_eps: 0.001
+  log_mode: rational
+  tmin_range:
+  - 0.05
+  - 0.95
+  t_max: 1.0
+fusion:
+  phi: 0.5
+  sigma: 0.2
+  eps: 1.0e-12
+  exponents:
+  - 2.0
+  - 1.0
+  - 2.0
+  - 1.0
+  laplacian: standard
+  saliency_blur: 3.0
+  saliency_window: 3
+  weight_range: 1.0
+  normalization: sum_to_one
+  colour: lab
+  brightness: true
+  drop_levels: 0
+  coarse_rule: false
+  coarse_alpha: 1.5

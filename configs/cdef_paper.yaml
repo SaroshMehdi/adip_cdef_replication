@@ -1,0 +1,85 @@
+# CDEF replication settings. Each section is passed to one module as keyword
+# arguments. Values marked "ours" are not in the paper. Values marked "code"
+# follow the authors' released code (or the released code of the method the
+# paper cites) where the paper is silent or differs. docs/deviations.md gives
+# the reasons and the measured effect of each. Where the paper's rule changed no
+# score by more than 1% on the fixed sample, the paper's rule is used.
+
+discrimination:              # Eq. 3
+  greenish: [0.5, 0.15]      # alpha, beta
+  bluish: [1.0, 0.3]
+
+luminance:                   # BIMEF, the paper's reference [36]
+  method: reference          # code: BIMEF's released implementation; "paper" is the BIMEF paper
+  mu: 0.5
+  lam: 0.5                   # code: BIMEF's released value (the paper path used 1.0)
+  eps: 0.001
+  window: 5                  # code: a 5-pixel line along each gradient direction
+  a: -0.3293
+  b: 1.1258
+  threshold: 0.5
+  search_size: 50
+  solve_scale: 0.5           # code: the illumination map is solved at half size
+  k_range: [1.0, 7.0]        # code
+  pcg_tol: 0.1               # code: approximate solve; null solves exactly (slower, near-identical)
+  offset: 0.0                # paper: g(P, k) as written (the released code subtracts 0.01)
+  clip: true                 # paper: output kept in [0, 1] (the released code does not clip)
+
+color_compensation:          # Eqs. 1-2
+  mask_threshold: 0.85
+  sigma: 1.0                 # code: 20 x 20 Gaussian of sigma 1; the paper gives no value
+  sigma_ratio: null          # set to use ratio * min(H, W) instead of sigma
+  smooth_mask: true
+  use_mask: true             # paper: Eq. 2 mask. The authors' code ends up with M = 1 everywhere
+
+tone_mapping:                # Eqs. 4-6, as in the paper
+  a: 2.0
+  b: 0.01
+
+cbm:                         # Yuan et al. 2021
+  omega: 0.1
+  b1_size: 15
+  b2_size: 5
+  iterations: 10
+  mode: repeat               # ours: or "scale"
+  clip: false                # code: the overshoot reaches the fusion
+  acs: false                 # ours: F3 is the morphology stage only
+  acs_lambda: 0.008
+
+ide:                         # Ju et al. 2021
+  method: reference          # code: the IDE code shipped with CDEF; "paper" is Algorithm 1 as printed
+  p1: -0.397
+  p2: 0.07747                # Ju's paper (the shipped code has 0.07774)
+  epsilon: 0.02
+  delta: 4                   # Ju's paper: search on a 4x smaller image (the code searches at full size)
+  patch: 75
+  air_window: 10             # code: per-channel airlight from a 10 x 10 local minimum
+  tmin_offset: 0.02          # code
+  smoothing: box             # code: what their guided filter reduces to; "guided" is a real guided filter
+  smooth_radius: 50          # code
+  tolerance: 0.001           # code
+  clip: false                # code: the overshoot reaches the fusion
+  # Used only by method: paper (and by smoothing: guided).
+  dark_patch: 15             # from He et al.
+  top_fraction: 0.001        # from He et al.
+  gf_radius: 37              # ours
+  gf_eps: 0.001              # ours
+  log_mode: rational         # ours: "exact" is Eq. 20 as printed
+  tmin_range: [0.05, 0.95]   # ours
+  t_max: 1.0                 # ours
+
+fusion:                      # Eqs. 7-14, with the fusion of Wang et al. [33] as in the code
+  phi: 0.5                   # Mertens, and the paper's text; Eq. 10 prints 2.0
+  sigma: 0.2                 # Mertens; Eq. 10 prints 0.5
+  eps: 1.0e-12               # code: only guards against division by zero (the paper gives 0.1)
+  exponents: [2.0, 1.0, 2.0, 1.0]  # code: contrast, saturation, saliency, exposure (paper: all 1)
+  laplacian: standard        # ours: "printed" is Eq. 7's kernel with its typo
+  saliency_blur: 3.0         # code: 3 x 3 Gaussian of sigma 3 before Eq. 9
+  saliency_window: 3         # code
+  weight_range: 1.0          # code: weights measured on [0, 1] values
+  normalization: sum_to_one  # ours: "printed" is Eq. 11 as printed
+  colour: yuv                # paper (the authors' code uses offset YCbCr)
+  brightness: true           # Wang et al. [33]: B = mean(Y)^2 per image
+  drop_levels: 0             # paper: Eq. 12, n = floor(log2 min(h, w)) (the code uses Wang's n - 2)
+  coarse_rule: false         # paper: Eq. 14 at every level (the code uses Wang's Eq. 10 at the coarsest)
+  coarse_alpha: 1.5          # Wang et al. [33]; used only with coarse_rule: true

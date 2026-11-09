@@ -1,0 +1,11 @@
+numpy
+opencv-python
+scikit-image
+scipy
+pyyaml
+tqdm
+pytest
+torch
+torchvision
+timm
+einops
