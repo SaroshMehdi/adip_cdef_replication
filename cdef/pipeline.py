@@ -1,63 +1,81 @@
-"""The full CDEF pipeline (Algorithm 1 and multiscale exposure fusion)."""
+"""The full CDEF pipeline: Algorithm 1 followed by multiscale exposure fusion."""
+from pathlib import Path
+
 import numpy as np
 import yaml
 
-from .color_comp import color_compensation
-from .color_discrimination import classify_tone
-from .detail.cbm import cbm
-from .detail.ide import ide
+from .cbm import cbm
+from .color_compensation import color_compensation
+from .discrimination import classify_tone
 from .fusion import multiscale_fusion
+from .ide import ide
 from .luminance import luminance_compensation
 from .tone_mapping import gray_world_tone_map, statistic_tone_map
 
+# Stages that can be switched off for the ablation study (Table IV).
+STAGES = ("luminance", "color_compensation", "tone_mapping", "cbm", "ide")
+
 
 def load_config(path):
-    """Read a YAML config. Each section holds keyword arguments for one module."""
+    """Read a YAML config. Each section holds keyword arguments for one stage.
+
+    A config may name a `base` config (relative to its own folder); its
+    sections are then updated with this file's values. The ablation configs
+    use this to change one setting of the main config.
+    """
+    path = Path(path)
     with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+        cfg = yaml.safe_load(f) or {}
+    base = cfg.pop("base", None)
+    if base is None:
+        return cfg
+    merged = load_config(path.parent / base)
+    for section, values in cfg.items():
+        merged.setdefault(section, {}).update(values)
+    return merged
 
 
 def enhance(img, cfg=None):
     """Enhance a float RGB image in [0, 1].
 
-    Returns (output, debug). debug holds every intermediate image, so figures
-    like the paper's Fig. 2 can be built from it.
+    Returns (output, debug). debug holds every intermediate image (F1-F4, the
+    fusion weights, ...) for figures like the paper's Fig. 2.
     """
     cfg = cfg or {}
-    # Stage switches for the ablation study (Table IV); all on by default.
-    stages = {"luminance": True, "color_compensation": True, "tone_mapping": True, "cbm": True, "ide": True}
-    unknown = set(cfg.get("stages", {})) - set(stages)
-    if unknown:
-        raise ValueError(f"unknown stages: {sorted(unknown)}")
-    stages.update(cfg.get("stages", {}))
+    stages = dict.fromkeys(STAGES, True)
+    for name, on in cfg.get("stages", {}).items():
+        if name not in stages:
+            raise ValueError(f"unknown stage: {name}")
+        stages[name] = on
     if not (stages["cbm"] or stages["ide"]):
         raise ValueError("at least one of cbm and ide must be on")
 
-    decision = classify_tone(img, **cfg.get("discrimination", {}))  # lines 5-9
+    # Phase 1: degradation compensation.
+    decision = classify_tone(img, **cfg.get("discrimination", {}))
     if stages["luminance"]:
-        exposed, k = luminance_compensation(img, **cfg.get("luminance", {}))  # line 2
-    else:  # -w/o LC
+        exposed, k = luminance_compensation(img, **cfg.get("luminance", {}))
+    else:
         exposed, k = img, 1.0
     if stages["color_compensation"]:
-        compensated = color_compensation(  # lines 3-11
-            exposed, decision.alpha, decision.beta, **cfg.get("color_compensation", {})
-        )
-    else:  # -w/o CC
+        compensated = color_compensation(exposed, decision.alpha, decision.beta, **cfg.get("color_compensation", {}))
+    else:
         compensated = np.clip(exposed, 0.0, 1.0).astype(np.float32)
 
-    tone_cfg = cfg.get("tone_mapping", {})
+    # Phase 2: the four fusion inputs.
     if stages["tone_mapping"]:
-        f1 = statistic_tone_map(compensated, tone_cfg.get("a", 2.0))  # line 13
-        f2 = gray_world_tone_map(compensated, tone_cfg.get("b", 0.01))  # line 14
-    else:  # -w/o TM: both tone-mapped inputs become the compensated image
-        f1, f2 = compensated, compensated
+        tone_cfg = cfg.get("tone_mapping", {})
+        f1 = statistic_tone_map(compensated, tone_cfg.get("a", 2.0))
+        f2 = gray_world_tone_map(compensated, tone_cfg.get("b", 0.01))
+    else:  # without TM, both tone-mapped inputs are the compensated image
+        f1 = f2 = compensated
+    base = f1 if decision.tone == "greenish" else f2
+    f3 = cbm(base, **cfg.get("cbm", {})) if stages["cbm"] else None
+    f4, tmin = ide(base, **cfg.get("ide", {})) if stages["ide"] else (None, None)
 
-    base = f1 if decision.tone == "greenish" else f2  # lines 16-22
-    f3 = cbm(base, **cfg.get("cbm", {})) if stages["cbm"] else None  # -w/o CBM drops F3
-    f4, tmin = ide(base, **cfg.get("ide", {})) if stages["ide"] else (None, None)  # -w/o IDE drops F4
-
-    inputs = [x for x in (f1, f2, f3, f4) if x is not None]
+    # Phase 3: fusion (a switched-off input is left out).
+    inputs = [f for f in (f1, f2, f3, f4) if f is not None]
     output, weights = multiscale_fusion(inputs, **cfg.get("fusion", {}))
+
     debug = {
         "tone": decision.tone,
         "alpha": decision.alpha,

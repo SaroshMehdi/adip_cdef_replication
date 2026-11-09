@@ -1,0 +1,57 @@
+# CDEF settings. Each section holds the keyword arguments of one stage.
+#
+# Marks: "paper" = given in the CDEF paper; "cited" = from the paper the stage
+# cites (BIMEF, CBM, IDE, Mertens et al.); "code" = from the authors' released
+# code where the paper gives no value or differs; "ours" = our choice.
+# docs/implementation_notes.md explains each departure from the paper.
+
+discrimination:              # Eq. 3: (alpha, beta) per tone
+  greenish: [0.5, 0.15]      # paper
+  bluish: [1.0, 0.3]         # paper
+
+luminance:                   # BIMEF [36]
+  mu: 0.5                    # cited: W = T^mu
+  lam: 0.5                   # code: smoothness strength of the illumination map
+  eps: 0.001                 # cited
+  window: 5                  # code: gradients summed along a 5-pixel line
+  solve_scale: 0.5           # code: illumination map solved at half size
+  pcg_tol: 0.1               # code: approximate conjugate-gradient solve
+  threshold: 0.5             # cited: T below this counts as under-exposed
+  a: -0.3293                 # cited: camera response model
+  b: 1.1258                  # cited
+  k_range: [1.0, 7.0]        # code: search range of the exposure ratio
+  search_size: 50            # cited: k is searched on a 50 x 50 copy
+
+color_compensation:          # Eqs. 1-2
+  sigma: 1.0                 # code: Gaussian G; the paper gives no value
+  mask_threshold: 0.85       # paper: Eq. 2
+
+tone_mapping:                # Eqs. 4-6
+  a: 2.0                     # paper: F1 limits, mean -/+ a * std
+  b: 0.01                    # paper: F2 quantile level
+
+cbm:                         # F3, Yuan et al. 2021
+  omega: 0.1                 # cited
+  b1_size: 15                # cited: hollow square structuring elements
+  b2_size: 5                 # cited
+  iterations: 10             # cited
+
+ide:                         # F4, Ju et al. 2021
+  p1: -0.397                 # cited: f(t) = p1 / (p2 + t)
+  p2: 0.07747                # cited
+  epsilon: 0.02              # cited: allowed share of clipped pixels
+  delta: 4                   # cited: t_min searched on a 4x smaller copy
+  patch: 75                  # cited: patch size for the local mean
+  air_window: 10             # code: ambient light from a 10 x 10 local minimum
+  tmin_offset: 0.02          # code
+  smooth_radius: 50          # code: box smoothing of t
+  tolerance: 0.001           # code: search tolerance
+
+fusion:                      # Eqs. 7-14
+  space: yuv                 # paper (ablation: rgb, lab)
+  phi: 0.5                   # cited (Mertens): well-exposed level; Eq. 10 prints 2
+  sigma: 0.2                 # cited (Mertens); Eq. 10 prints 0.5
+  eps: 1.0e-12               # code: Eq. 11 regulariser (the paper's 0.1 flattens the weights)
+  exponents: [2.0, 1.0, 2.0, 1.0]  # code: contrast, saturation, saliency, exposure (paper: all 1)
+  saliency_blur: 3.0         # code: 3 x 3 Gaussian of sigma 3 before Eq. 9
+  saliency_window: 3         # code

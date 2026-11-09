@@ -3,10 +3,10 @@
 Writes outputs/<method>/<dataset>/<image name>.png. Images already saved are skipped,
 so a stopped run resumes where it left off and finished work is never redone.
 
-python -m eval.run_dataset --config configs/cdef_paper.yaml --dataset UIEB C60
+python -m eval.run_dataset --config configs/cdef.yaml --dataset UIEB C60
 
 --sample uses a fixed subset of every 15th UIEB image and every 3rd C60 image
-(60 and 20 images), the subset used for the comparisons in docs/deviations.md.
+(60 and 20 images), the subset used for the comparisons in docs/implementation_notes.md.
 """
 import argparse
 import os
@@ -19,7 +19,7 @@ os.environ.update(OMP_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS
 import cv2
 
 from cdef.pipeline import enhance, load_config
-from cdef.utils import read_image, write_image
+from cdef.image_io import read_image, write_image
 
 cv2.setNumThreads(1)
 DATASETS = {
@@ -52,7 +52,7 @@ def enhance_and_save(cfg, job):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", default="configs/cdef_paper.yaml")
+    parser.add_argument("--config", default="configs/cdef.yaml")
     parser.add_argument("--dataset", nargs="+", choices=sorted(DATASETS), default=["UIEB", "C60"])
     parser.add_argument("--sample", action="store_true", help="fixed 60 UIEB + 20 C60 subset")
     parser.add_argument("--method", default="cdef", help="output folder name")
