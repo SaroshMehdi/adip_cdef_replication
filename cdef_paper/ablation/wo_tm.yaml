@@ -1,0 +1,5 @@
+# Table IV, w/o TM.
+base: ../config.yaml
+
+stages:
+  tone_mapping: false

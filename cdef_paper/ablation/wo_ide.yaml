@@ -1,0 +1,5 @@
+# Table IV, w/o IDE.
+base: ../config.yaml
+
+stages:
+  ide: false

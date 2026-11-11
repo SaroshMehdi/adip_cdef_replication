@@ -1,0 +1,59 @@
+# CDEF, papers-only settings (config.yaml builds on this file). Each section holds the keyword arguments of one stage.
+#
+# Marks say where a value comes from:
+#   paper  = printed in the CDEF paper
+#   text   = the CDEF paper's sentence, where its printed equation contradicts it
+#   cited  = printed in the paper the stage cites (BIMEF, CBM, IDE, Mertens, He)
+#   gap    = given in none of the papers; README.md explains the choice
+#   code   = the authors' released code (used for one value only)
+
+discrimination:              # Eq. 3: (alpha, beta) per tone
+  greenish: [0.5, 0.15]      # paper
+  bluish: [1.0, 0.3]         # paper
+
+luminance:                   # BIMEF [36], as in its paper
+  mu: 0.5                    # cited: W = T^mu
+  lam: 1.0                   # cited
+  eps: 0.001                 # cited
+  window: 5                  # cited: local window of the smoothness weights
+  threshold: 0.5             # cited: T below this counts as under-exposed
+  a: -0.3293                 # cited: camera response model
+  b: 1.1258                  # cited
+  search_size: 50            # cited: k is searched on a 50 x 50 copy
+  k_range: [1.0, 7.0]        # gap: the BIMEF paper gives no range for k
+
+color_compensation:          # Eqs. 1-2
+  mask_threshold: 0.85       # paper: Eq. 2
+  sigma: 1.0                 # code: the Gaussian G of Eq. 1; no paper gives it
+
+tone_mapping:                # Eqs. 4-6
+  a: 2.0                     # paper: F1 limits, mean -/+ a * std
+  b: 0.01                    # paper: F2 quantile level
+
+cbm:                         # F3, Yuan et al. 2021 [6]
+  omega: 0.1                 # cited
+  b1_size: 15                # cited: hollow square structuring elements
+  b2_size: 5                 # cited
+  iterations: 10             # cited
+  clip: true                 # gap: F3 kept in [0, 1]
+
+ide:                         # F4, Ju et al. 2021 [40], its Algorithm 1
+  p1: -0.397                 # cited: f(t) = p1 / (p2 + t)
+  p2: 0.07747                # cited
+  epsilon: 0.02              # cited: 2% of values clipped
+  delta: 4                   # cited: t_min searched on a 4x smaller copy
+  patch: 75                  # cited: patch of the local mean
+  dark_patch: 15             # cited (He et al. [17]): dark channel for the ambient light
+  top_fraction: 0.001        # cited (He et al.)
+  gf_radius: 37              # gap: guided filter radius, half a patch
+  gf_eps: 0.001              # gap: guided filter regularisation
+  tmin_range: [0.05, 0.95]   # gap: search range of t_min
+  tolerance: 0.005           # gap: search tolerance
+  recovery: rational         # gap: Eq. 20 with f(t) of Eq. 13; "log" is the printed ln(t)
+
+fusion:                      # Eqs. 7-14
+  space: yuv                 # paper (ablation: rgb, lab)
+  phi: 0.5                   # text: "a well-exposed pixel ... 0.5"; Eq. 10 prints 2
+  sigma: 0.2                 # text (Mertens [34]); Eq. 10 prints 0.5
+  eps: 0.1                   # paper: Eq. 11
+  exponents: [1.0, 1.0, 1.0, 1.0]  # paper: contrast, saturation, saliency, exposure

@@ -1,0 +1,5 @@
+# Table IV, w/o LC.
+base: ../config.yaml
+
+stages:
+  luminance: false

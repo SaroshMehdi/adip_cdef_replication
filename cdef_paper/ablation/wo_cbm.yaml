@@ -1,0 +1,5 @@
+# Table IV, w/o CBM.
+base: ../config.yaml
+
+stages:
+  cbm: false

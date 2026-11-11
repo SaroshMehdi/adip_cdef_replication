@@ -1,0 +1,5 @@
+# Table IV, MEF in Lab.
+base: ../config.yaml
+
+fusion:
+  space: lab_raw           # CIELab as it is, L in [0, 100] (closest to Table IV)

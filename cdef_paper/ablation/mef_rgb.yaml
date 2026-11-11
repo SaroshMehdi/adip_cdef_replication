@@ -1,0 +1,5 @@
+# Table IV, MEF in RGB.
+base: ../config.yaml
+
+fusion:
+  space: rgb

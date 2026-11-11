@@ -1,0 +1,43 @@
+# CDEF, paper version, calibrated: the mix of paper and authors'-code choices
+# whose scores are closest to the paper's Tables I, II and IV.
+#
+# paper_only.yaml holds the settings taken from the papers alone, with the
+# source of each value. This file changes the settings below; README.md has the
+# resulting scores.
+base: paper_only.yaml
+
+methods:
+  luminance: code            # BIMEF as in its released code (settings: luminance_code)
+  ide: code                  # IDE as in the code shipped with CDEF (settings: ide_code)
+
+luminance_code:
+  mu: 0.5
+  lam: 0.5                   # code (the BIMEF paper prints 1)
+  eps: 0.001
+  window: 5                  # code: gradients summed along a 5-pixel line
+  solve_scale: 0.5           # code: illumination map solved at half size
+  pcg_tol: 0.1               # code: approximate conjugate-gradient solve
+  threshold: 0.5
+  a: -0.3293
+  b: 1.1258
+  k_range: [1.0, 7.0]
+  search_size: 50
+
+cbm:
+  clip: false                # code: edge overshoot reaches the fusion
+
+ide_code:
+  p1: -0.397
+  p2: 0.07747
+  epsilon: 0.02
+  delta: 1                   # code: t_min searched at full size (the IDE paper prints 4)
+  patch: 75
+  air_window: 10             # code: ambient light from a 10 x 10 local minimum
+  tmin_offset: 0.02          # code
+  smooth_radius: 50          # code: box smoothing of t
+  tolerance: 0.001
+
+fusion:
+  value_range: 255.0         # measures of Eqs. 7-9 taken on 8-bit values (the range Eq. 6 maps to)
+  saliency_blur: 3.0         # code: 3 x 3 Gaussian of sigma 3 before Eq. 9
+  brightness: true           # code: weights scaled by each input's mean(Y)^2 (Wang et al. [33])
