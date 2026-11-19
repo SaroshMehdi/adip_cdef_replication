@@ -1,4 +1,4 @@
-# CDEF, paper version, calibrated: the mix of paper and authors'-code choices
+# CDEF, default settings: the mix of paper and authors'-code choices
 # whose scores are closest to the paper's Tables I, II and IV.
 #
 # paper_only.yaml holds the settings taken from the papers alone, with the

@@ -4,10 +4,10 @@ import pytest
 from scipy.sparse.linalg import spsolve
 from skimage.color import rgb2lab as skimage_rgb2lab
 
-from cdef.color_compensation import color_compensation, highlight_mask
-from cdef.color_spaces import lab_to_rgb, rgb_to_lab
-from cdef.discrimination import classify_tone
-from cdef.luminance import (
+from cdef_paper.color_compensation import color_compensation, highlight_mask
+from cdef_paper.color_spaces import lab_to_rgb, rgb_to_lab
+from cdef_paper.discrimination import classify_tone
+from cdef_paper.luminance_code import (
     brightness_transform,
     conjugate_gradients,
     entropy_8bit,
@@ -16,7 +16,7 @@ from cdef.luminance import (
     luminance_compensation,
     smoothing_system,
 )
-from cdef.resize import resize_cubic, resize_mask, resize_matrix
+from cdef_paper.resize import resize_cubic, resize_mask, resize_matrix
 
 
 # ------------------------------------------------------------ tone test

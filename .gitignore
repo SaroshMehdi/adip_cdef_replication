@@ -9,8 +9,6 @@ metrics/third_party/
 
 # Reference papers
 docs/*.pdf
-!docs/CDEF_method_explained.pdf
-!docs/CDEF_step_by_step.pdf
 
 __pycache__/
 .pytest_cache/

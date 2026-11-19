@@ -1,10 +1,10 @@
-# CDEF, paper version
+# CDEF
 
-A second implementation of CDEF, built to reproduce the scores printed in the paper:
+The implementation of CDEF, built to reproduce the scores printed in the paper:
 
 > J. Yuan, Y. Zhang, Z. Cai, "Underwater Scene Enhancement via Adaptive Color Analysis and Multispace Fusion," *IEEE Journal of Oceanic Engineering*, vol. 50, no. 4, pp. 2516–2528, Oct. 2025.
 
-The main version in [`cdef/`](../cdef) takes several choices from the authors' released code and scores above the paper. This folder holds two settings files:
+It holds two settings files:
 
 - [`paper_only.yaml`](paper_only.yaml) takes every value from the CDEF paper, and implements the three methods it uses without settings (BIMEF, CBM and IDE) from their own papers. On a fixed 80-image sample it scores well below the paper: about 25% on CCF and 9% on FDUM and URanker.
 - [`config.yaml`](config.yaml), the default, starts from `paper_only.yaml` and changes a few settings to the authors' released code. It is the mix whose scores are closest to the paper's Tables I, II and IV.
@@ -64,10 +64,10 @@ The fusion keeps the paper's ε = 0.1, exponents of 1, YUV and pyramid depth. Th
 Run from the project root. Enhance one image or a folder:
 
 ```bash
-python -m cdef_paper --input data/UIEB/raw --output outputs/UIEB_paper
+python -m cdef_paper --input data/UIEB/raw --output outputs/UIEB
 ```
 
-Enhance whole datasets into `outputs/cdef_paper/<dataset>/`, then score them with the same metric scripts as the main version:
+Enhance whole datasets into `outputs/cdef_paper/<dataset>/`, then score them with the metric scripts in [`metrics/`](../metrics):
 
 ```bash
 python -m cdef_paper.run_dataset --dataset UIEB C60 EUVP UCCS --workers 8
@@ -146,16 +146,16 @@ Every choice is a value in [`paper_only.yaml`](paper_only.yaml), marked with its
 | `pipeline.py` | Algorithm 1 and the fusion; config loading |
 | `discrimination.py` | Greenish / bluish test (Eq. 3) |
 | `luminance.py` | BIMEF from its paper |
-| `luminance_code.py`, `resize.py` | BIMEF as in its released code (copies of the main version's files) |
+| `luminance_code.py`, `resize.py` | BIMEF as in its released code, and the bicubic resize it uses |
 | `color_compensation.py` | Eqs. 1–2 |
 | `tone_mapping.py` | F1 and F2 (Eqs. 4–6) |
 | `cbm.py` | F3 from the CBM paper |
 | `ide.py` | F4 from the IDE paper |
-| `ide_code.py` | IDE as in the code shipped with CDEF (copy of the main version's file) |
+| `ide_code.py` | IDE as in the code shipped with CDEF |
 | `fusion.py` | Eqs. 7–14 |
 | `color_spaces.py`, `image_io.py` | Lab and YUV conversions, image files |
 | `paper_only.yaml` | Every papers-only parameter and where it comes from |
 | `config.yaml` | The default: `paper_only.yaml` with the changes above |
 | `ablation/` | One config per row of Table IV |
 | `run_dataset.py` | Enhance a dataset in parallel |
-| `../tests/test_paper_version.py` | Tests |
+| `../tests/` | Unit tests |

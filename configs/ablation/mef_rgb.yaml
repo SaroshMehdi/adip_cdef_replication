@@ -1,4 +1,0 @@
-# Table IV, -w/ MEF (in RGB): fusion in RGB, with Mertens et al.'s weights.
-base: ../cdef.yaml
-fusion:
-  space: rgb

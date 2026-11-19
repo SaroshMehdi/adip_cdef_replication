@@ -1,4 +1,0 @@
-# Table IV, -w/o TM: F1 and F2 are both the colour-compensated image.
-base: ../cdef.yaml
-stages:
-  tone_mapping: false

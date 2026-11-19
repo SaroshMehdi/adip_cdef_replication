@@ -1,4 +1,0 @@
-# Table IV, -w/o IDE: F4 is left out, three inputs are fused.
-base: ../cdef.yaml
-stages:
-  ide: false

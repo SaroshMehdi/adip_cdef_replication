@@ -2,8 +2,9 @@
 import numpy as np
 import pytest
 
-from cdef.color_spaces import lab_unit_to_rgb, rgb_to_lab_unit, rgb_to_yuv, yuv_to_rgb
-from cdef.fusion import (
+from cdef_paper.color_spaces import lab_unit_to_rgb, rgb_to_lab_unit, rgb_to_yuv, yuv_to_rgb
+from cdef_paper.pipeline import load_config
+from cdef_paper.fusion import (
     brightness_weights,
     collapse,
     combined_weight,
@@ -86,7 +87,8 @@ def test_fusing_identical_images_returns_that_image(greenish, space):
 
 
 def test_fusion_prefers_input_with_structure(greenish):
-    _, weights = multiscale_fusion([greenish, np.full_like(greenish, 0.5)])
+    fusion_cfg = load_config()["fusion"]
+    _, weights = multiscale_fusion([greenish, np.full_like(greenish, 0.5)], **fusion_cfg)
     assert weights[0].mean() > 0.8
 
 

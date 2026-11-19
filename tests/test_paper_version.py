@@ -1,4 +1,4 @@
-"""The paper version (cdef_paper): settings as printed, and a working pipeline."""
+"""The papers-only settings as printed, and both configs running end to end."""
 from pathlib import Path
 
 import numpy as np

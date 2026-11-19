@@ -1,6 +1,6 @@
-"""Enhance one image or a folder of images with the paper version:
+"""Enhance one image or a folder of images with CDEF:
 
-python -m cdef_paper --input data/UIEB/raw --output outputs/UIEB_paper
+python -m cdef_paper --input data/UIEB/raw --output outputs/UIEB
 """
 import argparse
 from pathlib import Path

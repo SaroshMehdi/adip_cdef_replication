@@ -1,4 +1,0 @@
-# Table IV, -w/o LC: no luminance compensation.
-base: ../cdef.yaml
-stages:
-  luminance: false

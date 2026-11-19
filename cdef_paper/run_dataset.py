@@ -1,4 +1,4 @@
-"""Enhance a dataset with the paper version and save every output.
+"""Enhance a dataset with CDEF and save every output.
 
 Writes outputs/<method>/<dataset>/<image name>.png, the layout the scoring
 scripts in metrics/ read. Images already saved are skipped, so a stopped run

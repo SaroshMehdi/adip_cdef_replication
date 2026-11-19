@@ -1,4 +1,0 @@
-# Table IV, -w/o CBM: F3 is left out, three inputs are fused.
-base: ../cdef.yaml
-stages:
-  cbm: false

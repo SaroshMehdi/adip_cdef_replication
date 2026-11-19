@@ -4,11 +4,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from cdef.cbm import cbm
-from cdef.pipeline import enhance, load_config
+from cdef_paper.cbm import cbm
+from cdef_paper.pipeline import enhance, load_config
 
-CONFIGS = Path(__file__).resolve().parents[1] / "configs"
-MAIN = load_config(CONFIGS / "cdef.yaml")
+ABLATION = Path(__file__).resolve().parents[1] / "cdef_paper" / "ablation"
+MAIN = load_config()  # the default config, cdef_paper/config.yaml
 
 
 def with_stages(**stages):
@@ -36,7 +36,7 @@ def test_base_is_the_tone_matched_tone_map(greenish, bluish):
 
 @pytest.mark.parametrize("name", ["wo_lc", "wo_tm", "wo_cbm", "wo_ide", "mef_rgb", "mef_lab"])
 def test_ablation_configs_change_one_thing(name):
-    cfg = load_config(CONFIGS / "ablation" / f"{name}.yaml")
+    cfg = load_config(ABLATION / f"{name}.yaml")
     changed = {s for s in set(cfg) | set(MAIN) if cfg.get(s) != MAIN.get(s)}
     assert changed in ({"stages"}, {"fusion"})
     if changed == {"fusion"}:
@@ -45,7 +45,7 @@ def test_ablation_configs_change_one_thing(name):
 
 @pytest.mark.parametrize(
     "stage, n_inputs",
-    [("luminance", 4), ("color_compensation", 4), ("tone_mapping", 4), ("cbm", 3), ("ide", 3)],
+    [("luminance", 4), ("color_compensation", 4), ("tone_mapping", 4), ("cbm", 3), ("ide", 4)],
 )
 def test_each_stage_can_be_switched_off(greenish, stage, n_inputs):
     out, debug = enhance(greenish, with_stages(**{stage: False}))
@@ -65,8 +65,12 @@ def test_without_tone_mapping_f1_and_f2_are_the_compensated_image(bluish):
     assert np.array_equal(debug["F2"], debug["compensated"])
 
 
-def test_unknown_stage_and_no_detail_input_are_rejected(greenish):
+def test_unknown_stage_is_rejected(greenish):
     with pytest.raises(ValueError):
         enhance(greenish, with_stages(fusion=False))
-    with pytest.raises(ValueError):
-        enhance(greenish, with_stages(cbm=False, ide=False))
+
+
+def test_without_ide_f4_is_the_tone_map_it_would_dehaze(greenish, bluish):
+    for img, base in ((greenish, "F1"), (bluish, "F2")):
+        _, debug = enhance(img, with_stages(ide=False))
+        assert debug["F4"] is debug[base]

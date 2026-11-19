@@ -4,8 +4,8 @@ import math
 import numpy as np
 import pytest
 
-from cdef.cbm import cbm, closing, contour_element, opening, top_hats
-from cdef.ide import (
+from cdef_paper.cbm import cbm, closing, contour_element, opening, top_hats
+from cdef_paper.ide_code import (
     ambient_light,
     golden_section,
     ide,
@@ -15,7 +15,7 @@ from cdef.ide import (
     rational_log,
     recover_albedo,
 )
-from cdef.tone_mapping import gray_world_range, gray_world_tone_map, statistic_range, statistic_tone_map, stretch
+from cdef_paper.tone_mapping import gray_world_range, gray_world_tone_map, statistic_range, statistic_tone_map, stretch
 
 
 # ----------------------------------------------------------- tone maps
@@ -82,7 +82,7 @@ def test_cbm_keeps_overshoot_for_the_fusion():
     img[10, :] = 1.0
     img[25:, :] = 0.03
     img[32, :] = 0.0
-    out = cbm(img)
+    out = cbm(img, clip=False)  # the default config's setting
     assert out.min() < 0.0 and out.max() > 1.0
 
 

@@ -5,7 +5,7 @@ is saved to results/scores/<method>_<dataset>/URanker.csv as soon as it is
 computed, so a stopped run resumes. When all images are done, a URanker column
 is added to results/scores/<method>_<dataset>.csv.
 
-python -m metrics.score_uranker --methods cdef_sample
+python -m metrics.score_uranker --methods cdef_paper
 """
 import argparse
 import csv

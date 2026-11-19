@@ -5,7 +5,7 @@ results/scores/<method>_<dataset>/, so a stopped run resumes. When all images ar
 done, the scores are joined into results/scores/<method>_<dataset>.csv, and a
 method with a finished table is never scored again.
 
-python -m metrics.score_all --methods cdef_sample --processes 6
+python -m metrics.score_all --methods cdef_paper --processes 6
 """
 import argparse
 import csv
